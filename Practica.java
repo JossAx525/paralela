@@ -148,7 +148,7 @@ public class Practica extends JFrame {
                 long startTime = System.nanoTime();
                 ExecutorService executor = Executors.newFixedThreadPool(1);
                 Future<int[]> future = executor.submit(() -> {
-                    mergeSort(arregloOrdenado);
+                    Arrays.sort(arregloOrdenado); // Usar Arrays.sort() en lugar de Merge Sort (mejora el tiempo)
                     return arregloOrdenado;
                 });
                 try {
