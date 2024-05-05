@@ -1,0 +1,161 @@
+
+package proyectoparalela2;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Arrays;
+
+public class ProyectoParalela2 extends JFrame {
+    private JTextArea areaTexto;
+    private JButton botonContar;
+    private JButton botonLimpiar;
+
+    public ProyectoParalela2() {
+        setTitle("Contador de Palabras");
+        setSize(800, 600); // Tamaño de la ventana el doble de grande
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Usar GridBagLayout para mayor flexibilidad en el diseño
+        setLayout(new GridBagLayout());
+        getContentPane().setBackground(Color.BLACK); // Cambiar el color de fondo de la ventana a negro
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+
+        areaTexto = new JTextArea(20, 50); // Tamaño del área de texto
+        areaTexto.setBackground(Color.BLACK); // Cambiar el color de fondo del área de texto a negro
+        areaTexto.setForeground(Color.WHITE); // Cambiar el color del texto del área de texto a blanco
+        areaTexto.setCaretColor(Color.WHITE); // Cambiar el color del cursor del área de texto a blanco
+        areaTexto.setLineWrap(true); // Para que el texto se ajuste automáticamente al ancho del área de texto
+        areaTexto.setWrapStyleWord(true); // Para que las palabras no se corten
+        JScrollPane scrollPane = new JScrollPane(areaTexto);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER); // Configuración para desactivar la barra de desplazamiento horizontal
+        add(scrollPane, gbc);
+
+        gbc.gridy++;
+        botonContar = new JButton("Contar Palabras");
+        botonContar.setBackground(Color.BLACK); // Cambiar el color de fondo del botón a negro
+        botonContar.setForeground(Color.WHITE); // Cambiar el color del texto del botón a blanco
+        botonContar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                contarPalabras();
+            }
+        });
+        add(botonContar, gbc);
+
+        gbc.gridy++;
+        botonLimpiar = new JButton("Limpiar Texto");
+        botonLimpiar.setBackground(Color.BLACK); // Cambiar el color de fondo del botón a negro
+        botonLimpiar.setForeground(Color.WHITE); // Cambiar el color del texto del botón a blanco
+        botonLimpiar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                areaTexto.setText("");
+            }
+        });
+        add(botonLimpiar, gbc);
+    }
+
+    private void contarPalabras() {
+        String texto = areaTexto.getText();
+        String[] palabras = texto.split("\\s+"); // Divide el texto en palabras usando espacios como delimitador
+
+        // Dividir el arreglo de palabras en dos mitades
+        String[] palabras1 = Arrays.copyOfRange(palabras, 0, palabras.length / 2);
+        String[] palabras2 = Arrays.copyOfRange(palabras, palabras.length / 2, palabras.length);
+
+        // Crear dos hilos para ordenar las dos mitades
+        MergeSortThread hilo1 = new MergeSortThread(palabras1);
+        MergeSortThread hilo2 = new MergeSortThread(palabras2);
+
+        hilo1.start();
+        hilo2.start();
+
+        try {
+            hilo1.join();
+            hilo2.join();
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+
+        // Combinar las dos mitades ordenadas
+        merge(palabras, palabras1, palabras2);
+
+        // Contar palabras
+        int conteoPalabras = 0;
+        for (String palabra : palabras) {
+            if (!palabra.isEmpty()) {
+                conteoPalabras++;
+            }
+        }
+
+        JOptionPane.showMessageDialog(this, "Número de palabras: " + conteoPalabras);
+    }
+
+    // Clase para ordenar un arreglo de palabras utilizando el algoritmo de Merge Sort
+    private class MergeSortThread extends Thread {
+        private String[] palabras;
+
+        public MergeSortThread(String[] palabras) {
+            this.palabras = palabras;
+        }
+
+        @Override
+        public void run() {
+            mergeSort(palabras, 0, palabras.length - 1);
+        }
+    }
+
+    // Método para combinar dos mitades ordenadas de un arreglo
+    private void merge(String[] palabras, String[] palabras1, String[] palabras2) {
+        int i = 0, j = 0, k = 0;
+        while (i < palabras1.length && j < palabras2.length) {
+            if (palabras1[i].compareToIgnoreCase(palabras2[j]) <= 0) {
+                palabras[k] = palabras1[i];
+                i++;
+            } else {
+                palabras[k] = palabras2[j];
+                j++;
+            }
+            k++;
+        }
+
+        while (i < palabras1.length) {
+            palabras[k] = palabras1[i];
+            i++;
+            k++;
+        }
+
+        while (j < palabras2.length) {
+            palabras[k] = palabras2[j];
+            j++;
+            k++;
+        }
+    }
+
+    // Implementación del algoritmo Merge Sort
+    private void mergeSort(String[] palabras, int izquierda, int derecha) {
+        if (izquierda < derecha) {
+            int medio = (izquierda + derecha) / 2;
+            mergeSort(palabras, izquierda, medio);
+            mergeSort(palabras, medio + 1, derecha);
+            merge(palabras, Arrays.copyOfRange(palabras, izquierda, medio + 1), Arrays.copyOfRange(palabras, medio + 1, derecha + 1));
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                ProyectoParalela2 gui = new ProyectoParalela2();
+                gui.setVisible(true);
+            }
+        });
+    }
+}
