@@ -1,4 +1,5 @@
 
+
 package proyectoparalela2;
 
 import javax.swing.*;
@@ -6,20 +7,26 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
+import java.util.concurrent.*;
 
 public class ProyectoParalela2 extends JFrame {
     private JTextArea areaTexto;
-    private JButton botonContar;
+    private JButton botonContarMergeSort;
+    private JButton botonContarForkJoin;
+    private JButton botonContarExecutorService;
     private JButton botonLimpiar;
+    private JTextField resultadoMergeSort;
+    private JTextField resultadoForkJoin;
+    private JTextField resultadoExecutorService;
 
     public ProyectoParalela2() {
         setTitle("Contador de Palabras");
-        setSize(800, 600); // Tamaño de la ventana el doble de grande
+        setSize(800, 600); //tamaño de ventana
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Usar GridBagLayout para mayor flexibilidad en el diseño
+        //GridBagLayout
         setLayout(new GridBagLayout());
-        getContentPane().setBackground(Color.BLACK); // Cambiar el color de fondo de la ventana a negro
+        getContentPane().setBackground(Color.BLACK); //fondo ventata
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -27,32 +34,80 @@ public class ProyectoParalela2 extends JFrame {
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
 
-        areaTexto = new JTextArea(20, 50); // Tamaño del área de texto
-        areaTexto.setBackground(Color.BLACK); // Cambiar el color de fondo del área de texto a negro
-        areaTexto.setForeground(Color.WHITE); // Cambiar el color del texto del área de texto a blanco
-        areaTexto.setCaretColor(Color.WHITE); // Cambiar el color del cursor del área de texto a blanco
-        areaTexto.setLineWrap(true); // Para que el texto se ajuste automáticamente al ancho del área de texto
-        areaTexto.setWrapStyleWord(true); // Para que las palabras no se corten
+        areaTexto = new JTextArea(20, 50); // tamaño texto area
+        areaTexto.setBackground(Color.BLACK); //color fondo
+        areaTexto.setForeground(Color.WHITE); //color texto
+        areaTexto.setCaretColor(Color.WHITE); // color cursor
+        areaTexto.setLineWrap(true); // ajustar ancho
+        areaTexto.setWrapStyleWord(true); //para que las palabras no se corten
         JScrollPane scrollPane = new JScrollPane(areaTexto);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER); // Configuración para desactivar la barra de desplazamiento horizontal
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER); //desactivar movimiento horizontal
         add(scrollPane, gbc);
 
         gbc.gridy++;
-        botonContar = new JButton("Contar Palabras");
-        botonContar.setBackground(Color.BLACK); // Cambiar el color de fondo del botón a negro
-        botonContar.setForeground(Color.WHITE); // Cambiar el color del texto del botón a blanco
-        botonContar.addActionListener(new ActionListener() {
+        botonContarMergeSort = new JButton("Contar Palabras (Merge Sort)");
+        botonContarMergeSort.setBackground(Color.BLACK); // color fondo
+        botonContarMergeSort.setForeground(Color.WHITE); // color texto
+        botonContarMergeSort.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                contarPalabras();
+                contarPalabrasMergeSort();
             }
         });
-        add(botonContar, gbc);
+        add(botonContarMergeSort, gbc);
+
+        gbc.gridy++;
+        resultadoMergeSort = new JTextField(20);
+        resultadoMergeSort.setBackground(Color.BLACK);
+        resultadoMergeSort.setForeground(Color.WHITE);
+        resultadoMergeSort.setEditable(false);
+        resultadoMergeSort.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+        add(resultadoMergeSort, gbc);
+
+        gbc.gridy++;
+        botonContarForkJoin = new JButton("Contar Palabras (ForkJoin)");
+        botonContarForkJoin.setBackground(Color.BLACK); // color de boton
+        botonContarForkJoin.setForeground(Color.WHITE); // color texto boton
+        botonContarForkJoin.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                contarPalabrasForkJoin();
+            }
+        });
+        add(botonContarForkJoin, gbc);
+
+        gbc.gridy++;
+        resultadoForkJoin = new JTextField(20);
+        resultadoForkJoin.setBackground(Color.BLACK);
+        resultadoForkJoin.setForeground(Color.WHITE);
+        resultadoForkJoin.setEditable(false);
+        resultadoForkJoin.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+        add(resultadoForkJoin, gbc);
+
+        gbc.gridy++;
+        botonContarExecutorService = new JButton("Contar Palabras (ExecutorService)");
+        botonContarExecutorService.setBackground(Color.BLACK);
+        botonContarExecutorService.setForeground(Color.WHITE);
+        botonContarExecutorService.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                contarPalabrasExecutorService();
+            }
+        });
+        add(botonContarExecutorService, gbc);
+
+        gbc.gridy++;
+        resultadoExecutorService = new JTextField(20);
+        resultadoExecutorService.setBackground(Color.BLACK);
+        resultadoExecutorService.setForeground(Color.WHITE);
+        resultadoExecutorService.setEditable(false);
+        resultadoExecutorService.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+        add(resultadoExecutorService, gbc);
 
         gbc.gridy++;
         botonLimpiar = new JButton("Limpiar Texto");
-        botonLimpiar.setBackground(Color.BLACK); // Cambiar el color de fondo del botón a negro
-        botonLimpiar.setForeground(Color.WHITE); // Cambiar el color del texto del botón a blanco
+        botonLimpiar.setBackground(Color.BLACK);
+        botonLimpiar.setForeground(Color.WHITE);
         botonLimpiar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -62,57 +117,151 @@ public class ProyectoParalela2 extends JFrame {
         add(botonLimpiar, gbc);
     }
 
-    private void contarPalabras() {
+    private void contarPalabrasMergeSort() {
+        long startTime = System.nanoTime();
         String texto = areaTexto.getText();
-        String[] palabras = texto.split("\\s+"); // Divide el texto en palabras usando espacios como delimitador
+        String[] palabras = texto.split("\\s+"); //dividir texto
+        int mid = palabras.length / 2;
+        String[] palabras1 = Arrays.copyOfRange(palabras, 0, mid);
+        String[] palabras2 = Arrays.copyOfRange(palabras, mid, palabras.length);
 
-        // Dividir el arreglo de palabras en dos mitades
-        String[] palabras1 = Arrays.copyOfRange(palabras, 0, palabras.length / 2);
-        String[] palabras2 = Arrays.copyOfRange(palabras, palabras.length / 2, palabras.length);
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mergeSort(palabras1, 0, palabras1.length - 1);
+            }
+        });
+        Thread thread2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mergeSort(palabras2, 0, palabras2.length - 1);
+            }
+        });
 
-        // Crear dos hilos para ordenar las dos mitades
-        MergeSortThread hilo1 = new MergeSortThread(palabras1);
-        MergeSortThread hilo2 = new MergeSortThread(palabras2);
-
-        hilo1.start();
-        hilo2.start();
+        thread1.start();
+        thread2.start();
 
         try {
-            hilo1.join();
-            hilo2.join();
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
+            thread1.join();
+            thread2.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
-        // Combinar las dos mitades ordenadas
         merge(palabras, palabras1, palabras2);
 
-        // Contar palabras
+        int conteoPalabras = contarPalabras(palabras);
+        long endTime = System.nanoTime();
+        long tiempoTranscurrido = (endTime - startTime) / 1000; // microsegunddos
+        resultadoMergeSort.setText("Número de palabras (Merge Sort): " + conteoPalabras + "\n" +
+                "Tiempo transcurrido (Merge Sort): " + tiempoTranscurrido + " microsegundos");
+    }
+
+    private void contarPalabrasForkJoin() {
+        long startTime = System.nanoTime();
+        String texto = areaTexto.getText();
+        String[] palabras = texto.split("\\s+");
+        int mid = palabras.length / 2;
+        String[] palabras1 = Arrays.copyOfRange(palabras, 0, mid);
+        String[] palabras2 = Arrays.copyOfRange(palabras, mid, palabras.length);
+
+        ContadorPalabrasForkJoinTask task1 = new ContadorPalabrasForkJoinTask(palabras1);
+        ContadorPalabrasForkJoinTask task2 = new ContadorPalabrasForkJoinTask(palabras2);
+
+        ForkJoinTask.invokeAll(task1, task2);
+
+        int conteoPalabras = task1.join() + task2.join();
+        long endTime = System.nanoTime();
+        long tiempoTranscurrido = (endTime - startTime) / 1000;
+        resultadoForkJoin.setText("Número de palabras (ForkJoin): " + conteoPalabras + "\n" +
+                "Tiempo transcurrido (ForkJoin): " + tiempoTranscurrido + " microsegundos");
+    }
+
+    private void contarPalabrasExecutorService() {
+        long startTime = System.nanoTime();
+        String texto = areaTexto.getText();
+        String[] palabras = texto.split("\\s+");
+        int mid = palabras.length / 2;
+        String[] palabras1 = Arrays.copyOfRange(palabras, 0, mid);
+        String[] palabras2 = Arrays.copyOfRange(palabras, mid, palabras.length);
+
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        Future<Integer> future1 = executorService.submit(new ContadorPalabrasCallable(palabras1));
+        Future<Integer> future2 = executorService.submit(new ContadorPalabrasCallable(palabras2));
+
+        int conteoPalabras = 0;
+        try {
+            conteoPalabras = future1.get() + future2.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        executorService.shutdown();
+        long endTime = System.nanoTime();
+        long tiempoTranscurrido = (endTime - startTime) / 1000;
+        resultadoExecutorService.setText("Número de palabras (ExecutorService): " + conteoPalabras + "\n" +
+                "Tiempo transcurrido (ExecutorService): " + tiempoTranscurrido + " microsegundos");
+    }
+
+    private int contarPalabras(String[] palabras) {
         int conteoPalabras = 0;
         for (String palabra : palabras) {
             if (!palabra.isEmpty()) {
                 conteoPalabras++;
             }
         }
-
-        JOptionPane.showMessageDialog(this, "Número de palabras: " + conteoPalabras);
+        return conteoPalabras;
     }
 
-    // Clase para ordenar un arreglo de palabras utilizando el algoritmo de Merge Sort
-    private class MergeSortThread extends Thread {
+    //ForkJoin
+    private class ContadorPalabrasForkJoinTask extends RecursiveTask<Integer> {
         private String[] palabras;
+        private static final int THRESHOLD = 100;
 
-        public MergeSortThread(String[] palabras) {
+        public ContadorPalabrasForkJoinTask(String[] palabras) {
             this.palabras = palabras;
         }
 
         @Override
-        public void run() {
-            mergeSort(palabras, 0, palabras.length - 1);
+        protected Integer compute() {
+            if (palabras.length <= THRESHOLD) {
+                return contarPalabras(palabras);
+            } else {
+                int mid = palabras.length / 2;
+                ContadorPalabrasForkJoinTask leftTask = new ContadorPalabrasForkJoinTask(Arrays.copyOfRange(palabras, 0, mid));
+                ContadorPalabrasForkJoinTask rightTask = new ContadorPalabrasForkJoinTask(Arrays.copyOfRange(palabras, mid, palabras.length));
+                leftTask.fork();
+                int rightResult = rightTask.compute();
+                int leftResult = leftTask.join();
+                return leftResult + rightResult;
+            }
         }
     }
 
-    // Método para combinar dos mitades ordenadas de un arreglo
+    //ExecutorService
+    private class ContadorPalabrasCallable implements Callable<Integer> {
+        private String[] palabras;
+
+        public ContadorPalabrasCallable(String[] palabras) {
+            this.palabras = palabras;
+        }
+
+        @Override
+        public Integer call() {
+            return contarPalabras(palabras);
+        }
+    }
+
+    //Merge Sort
+    private void mergeSort(String[] palabras, int izquierda, int derecha) {
+        if (izquierda < derecha) {
+            int medio = (izquierda + derecha) / 2;
+            mergeSort(palabras, izquierda, medio);
+            mergeSort(palabras, medio + 1, derecha);
+            merge(palabras, Arrays.copyOfRange(palabras, izquierda, medio + 1), Arrays.copyOfRange(palabras, medio + 1, derecha + 1));
+        }
+    }
+
+    //combinar dos mitades ordenadas de un arreglo
     private void merge(String[] palabras, String[] palabras1, String[] palabras2) {
         int i = 0, j = 0, k = 0;
         while (i < palabras1.length && j < palabras2.length) {
@@ -136,16 +285,6 @@ public class ProyectoParalela2 extends JFrame {
             palabras[k] = palabras2[j];
             j++;
             k++;
-        }
-    }
-
-    // Implementación del algoritmo Merge Sort
-    private void mergeSort(String[] palabras, int izquierda, int derecha) {
-        if (izquierda < derecha) {
-            int medio = (izquierda + derecha) / 2;
-            mergeSort(palabras, izquierda, medio);
-            mergeSort(palabras, medio + 1, derecha);
-            merge(palabras, Arrays.copyOfRange(palabras, izquierda, medio + 1), Arrays.copyOfRange(palabras, medio + 1, derecha + 1));
         }
     }
 
